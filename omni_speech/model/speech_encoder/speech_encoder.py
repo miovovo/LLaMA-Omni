@@ -4,6 +4,9 @@ import types
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from conformer_enc import Conformer_enc
+from torch import Tensor
+from typing import Tuple
 
 
 class WhisperWrappedEncoder:
@@ -25,4 +28,10 @@ class WhisperWrappedEncoder:
         import whisper
         encoder = whisper.load_model(name=model_config.speech_encoder, device='cpu').encoder
         replace_layer_norm(encoder)
+        return encoder
+
+class ConformerWrappedEncoder:
+    def load(cls, model_config):
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        encoder = Conformer_enc(input_dim=80, encoder_dim=32, num_encoder_layers=3).to(device)
         return encoder

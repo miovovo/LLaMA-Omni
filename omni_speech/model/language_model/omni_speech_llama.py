@@ -12,6 +12,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+# https://huggingface.co/ICTNLP/Llama-3.1-8B-Omni/tree/main
 
 from typing import List, Optional, Tuple, Union
 

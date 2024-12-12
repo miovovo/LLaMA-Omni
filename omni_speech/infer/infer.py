@@ -9,6 +9,7 @@ import whisper
 from omni_speech.constants import SPEECH_TOKEN_INDEX, DEFAULT_SPEECH_TOKEN
 from omni_speech.conversation import conv_templates, SeparatorStyle
 from omni_speech.model.builder import load_pretrained_model
+from omni_speech.model.audio_process.wav import preprocess_audio
 from omni_speech.utils import disable_torch_init
 from omni_speech.datasets.preprocess import tokenizer_speech_token
 from torch.utils.data import Dataset, DataLoader
@@ -46,6 +47,10 @@ class CustomDataset(Dataset):
         conv.append_message(conv.roles[0], qs)
         conv.append_message(conv.roles[1], None)
         prompt = conv.get_prompt()
+
+        #speech_file是音频文件
+        speech = preprocess_audio(speech_file, target_sample_rate=16000, n_mels=self.mel_size, sequence_length=128)
+
 
         speech = whisper.load_audio(speech_file)
         if self.input_type == "raw":
