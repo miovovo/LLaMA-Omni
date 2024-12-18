@@ -1,28 +1,46 @@
 import torch
 import torch.nn as nn
-from conformer import Conformer
+from torch import Tensor
+from conformer.conformer.encoder import ConformerEncoder
+from speech_projector.builder import build_speech_projector
 
-batch_size, sequence_length, dim = 3, 12345, 80
+# 测试代码
+def test_conformer_encoder():
+    batch_size = 3
+    seq_len = 12345
+    feature_dim = 80
 
-cuda = torch.cuda.is_available()  
-device = torch.device('cuda' if cuda else 'cpu')
+    # 创建随机输入数据
+    inputs = torch.randn(batch_size, seq_len, feature_dim)
+    input_lengths = torch.tensor([seq_len, seq_len - 100, seq_len - 200])  # 假设每个样本有不同长度
 
-criterion = nn.CTCLoss().to(device)
+    # 初始化 ConformerEncoder
+    model = ConformerEncoder(
+        input_dim=feature_dim,
+        encoder_dim=512,
+        num_layers=5,
+        num_attention_heads=8,
+        feed_forward_expansion_factor=4,
+        conv_expansion_factor=2,
+        input_dropout_p=0.1,
+        feed_forward_dropout_p=0.1,
+        attention_dropout_p=0.1,
+        conv_dropout_p=0.1,
+        conv_kernel_size=31,
+        half_step_residual=True
+    )
 
-inputs = torch.rand(batch_size, sequence_length, dim).to(device)
-input_lengths = torch.LongTensor([12345, 12300, 12000])
-targets = torch.LongTensor([[1, 3, 3, 3, 3, 3, 4, 5, 6, 2],
-                            [1, 3, 3, 3, 3, 3, 4, 5, 2, 0],
-                            [1, 3, 3, 3, 3, 3, 4, 2, 0, 0]]).to(device)
-target_lengths = torch.LongTensor([9, 8, 7])
+    # 打印模型参数数量
+    print(f"Model parameters: {model.count_parameters()}")
 
-model = Conformer(num_classes=10, 
-                  input_dim=dim, 
-                  encoder_dim=32, 
-                  num_encoder_layers=3).to(device)
+    # 前向传播
+    outputs, output_lengths = model(inputs, input_lengths)
 
-# Forward propagate
-outputs, output_lengths = model(inputs, input_lengths)
+    # 验证输出形状
+    print(f"Input shape: {inputs.shape}")
+    print(f"Output shape: {outputs.shape}")
+    print(f"Input lengths: {input_lengths}")
+    print(f"Output lengths: {output_lengths}")
 
-# Calculate CTC Loss
-loss = criterion(outputs.transpose(0, 1), targets, output_lengths, target_lengths)
+# 运行测试
+test_conformer_encoder()

@@ -4,7 +4,6 @@
 import torch
 import torch.nn as nn
 
-
 class EncoderProjectorConcat(nn.Module):
     def __init__(self, config):
         super().__init__()
